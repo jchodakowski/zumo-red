@@ -4,6 +4,8 @@ measure how much the robot has turned about its Z axis. */
 
 #pragma once
 
+#include <Wire.h>
+#include <L3G.h>
 #include <Zumo32U4.h>
 
 // This constant represents a turn of 45 degrees.

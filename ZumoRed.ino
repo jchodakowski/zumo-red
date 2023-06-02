@@ -1,4 +1,5 @@
 #include <Wire.h>
+#include <L3G.h>
 #include <Zumo32U4.h>
 #include "TurnSensor.h"
 #include "SmartProximitySensor.h"
