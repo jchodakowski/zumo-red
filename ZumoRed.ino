@@ -79,7 +79,7 @@ const char beep1[] PROGMEM = "!>c32";
 Zumo32U4Buzzer buzzer;
 Zumo32U4Encoders encoders;
 Zumo32U4Motors motors;
-Zumo32U4LCD lcd;
+Zumo32U4OLED display;
 Zumo32U4LineSensors lineSensors;
 Zumo32U4ButtonA buttonA;
 Zumo32U4ButtonB buttonB;
@@ -100,7 +100,7 @@ uint16_t borderAnalyzeEncoderCounts;
 // The time, in milliseconds, that we entered the current top-level state.
 uint16_t stateStartTime;
 
-// The time, in milliseconds, that the LCD was last updated.
+// The time, in milliseconds, that the display was last updated.
 uint16_t displayTime;
 
 // This gets set to true whenever we change to a new state.
@@ -131,8 +131,8 @@ bool displayIsStale(uint16_t staleTime)
 }
 
 // Any part of the code that uses displayIsStale to decide when
-// to update the LCD should call this function when it updates the
-// LCD.
+// to update the display should call this function when it updates the
+// display.
 void displayUpdated()
 {
   displayTime = millis();
@@ -155,7 +155,7 @@ uint32_t calculateTurnCenterAngle(uint16_t counts)
 
 extern RobotState * robotState;
 
-// Changes to a new state.  It also clears the LCD and turns off
+// Changes to a new state.  It also clears the display and turns off
 // the LEDs so that the things the previous state were doing do
 // not affect the feedback the user sees in the new state.
 void changeState(RobotState & state)
@@ -165,7 +165,7 @@ void changeState(RobotState & state)
   ledRed(0);
   ledYellow(0);
   ledGreen(0);
-  lcd.clear();
+  display.clear();
   displayCleared = true;
   robotState = &state;
 }
@@ -188,7 +188,7 @@ public:
   {
     lastStopAtEdge = true;
     motors.setSpeeds(0, 0);
-    lcd.print(F("Press A"));
+    display.print(F("Press A"));
   }
 
   void loop()
@@ -196,9 +196,9 @@ public:
     if (displayIsStale(100))
     {
       displayUpdated();
-      lcd.gotoXY(0, 1);
-      lcd.print(readBatteryMillivolts());
-      lcd.print(F("     "));
+      display.gotoXY(0, 1);
+      display.print(readBatteryMillivolts());
+      display.print(F("     "));
     }
 
     if (buttonA.getSingleDebouncedPress())
@@ -230,10 +230,10 @@ class StateWaiting : public RobotState
     {
       // Display the remaining time we have to wait.
       uint16_t timeLeft = waitTime - time;
-      lcd.gotoXY(0, 0);
-      lcd.print(timeLeft / 1000 % 10);
-      lcd.print('.');
-      lcd.print(timeLeft / 100 % 10);
+      display.gotoXY(0, 0);
+      display.print(timeLeft / 1000 % 10);
+      display.print('.');
+      display.print(timeLeft / 100 % 10);
     }
     else
     {
@@ -249,7 +249,7 @@ class StateTurningToCenter : public RobotState
   void setup()
   {
     turnSensorReset();
-    lcd.print(F("turncent"));
+    display.print(F("turncent"));
   }
 
   void loop()
@@ -273,10 +273,10 @@ class StateTurningToCenter : public RobotState
 
       /** // Uncomment to test the analyzing algorithms.
       motors.setSpeeds(0, 0);
-      lcd.clear();
-      lcd.print(borderAnalyzeEncoderCounts);
-      lcd.gotoXY(0, 1);
-      lcd.print((((uint32_t)turnCenterAngle >> 16) * 360) >> 16);
+      display.clear();
+      display.print(borderAnalyzeEncoderCounts);
+      display.gotoXY(0, 1);
+      display.print((((uint32_t)turnCenterAngle >> 16) * 360) >> 16);
       while(1){ }
       **/
     }
@@ -297,7 +297,7 @@ class StateDriving : public RobotState
     encoders.getCountsAndResetRight();
     motors.setSpeeds(forwardSpeed, forwardSpeed);
     // senseReset(); // not needed because we were scanning earlier
-    lcd.print(F("drive"));
+    display.print(F("drive"));
   }
 
   void loop()
@@ -344,7 +344,7 @@ class StatePushing : public RobotState
 {
   void setup()
   {
-    lcd.print(F("PUSH"));
+    display.print(F("PUSH"));
   }
 
   void loop()
@@ -402,7 +402,7 @@ class StateBacking : public RobotState
     encoders.getCountsAndResetLeft();
     encoders.getCountsAndResetRight();
     motors.setSpeeds(-reverseSpeed, -reverseSpeed);
-    lcd.print(F("back"));
+    display.print(F("back"));
   }
 
   void loop()
@@ -442,7 +442,7 @@ class StateScanning : public RobotState
       motors.setSpeeds(-turnSpeedLow, turnSpeedHigh);
     }
 
-    lcd.print(F("scan"));
+    display.print(F("scan"));
   }
 
   void loop()
@@ -493,7 +493,7 @@ class StateAnalyzingBorder : public RobotState
     encoders.getCountsAndResetLeft();
     encoders.getCountsAndResetRight();
     motors.setSpeeds(analyzeSpeed, analyzeSpeed);
-    lcd.print(F("analyze"));
+    display.print(F("analyze"));
     lastStopAtEdge = true;
   }
 
